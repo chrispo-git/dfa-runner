@@ -1,0 +1,6 @@
+# DFA that accepts a^m b^n where m,n are natural numbers
+states = ["s", "q", "r"]
+accept = ["q"]
+start = "s"
+language = ["a", "b"]
+transitions = ["s-(a)->s", "s-(b)->q", "q-(a)->r", "q-(b)->q", "r-(a)->r", "r-(b)->r"]

@@ -1,4 +1,8 @@
 from __future__ import annotations
+import toml
+import os
+from pathlib import Path
+import argparse
 
 class StateError(Exception):
     pass
@@ -18,7 +22,7 @@ class State:
 class StateTransition:
     def __init__(self, stateStart: State, stateEnd: State, transitionChar: str):
       if not isinstance(stateStart, State) or not isinstance(stateEnd, State):
-         raise TypeError("Not type State")
+         raise TypeError(f"Not type State")
       if not isinstance(transitionChar, str):
          raise TypeError("Not type str")
       self.stateStart = stateStart
@@ -27,6 +31,9 @@ class StateTransition:
 
     @classmethod
     def from_str(cls, string: str):
+        string = string.replace("\n", "")
+        string = string.replace("\t", "")
+        string = string.replace(" ", "")
         if "-(" not in string or ")->" not in string:
             raise DFAParseError("Invalid State Transition Syntax")
         stateStart = State(string.split("-(")[0])
@@ -47,14 +54,14 @@ class DefiniteFiniteAutomata:
         self.transitions = []
         for state in states:
             if not isinstance(state, State):
-                raise TypeError("Not type State")
+                raise TypeError(f"Not type State, is type {type(state)}")
             if verbose:
                 print(f"Appending {state.stateName} to states")
             self.states.append(state)
 
         for state in acceptingStates:
             if not isinstance(state, State):
-                raise TypeError("Not type State")
+                raise TypeError(f"Not type State, is type {type(state)}")
             if state not in states:
                 raise StateError("Accepting state not found in states")
             if verbose:
@@ -62,7 +69,7 @@ class DefiniteFiniteAutomata:
             self.accepting.append(state)
 
         if not isinstance(startState, State):
-            raise TypeError("Not type State")
+            raise TypeError(f"Not type State, is type {type(state)}")
         if startState not in states:
             raise StateError("Starting state not found in states")
         if verbose:
@@ -82,6 +89,27 @@ class DefiniteFiniteAutomata:
                 self.transitions.append(transition)
             else:
                 raise StateError("Transition state not found in states")
+    @classmethod
+    def from_toml(cls, file: str, verbose=False):
+        dfaToml = ""
+        with open(file, 'r') as f:
+            dfaToml = toml.load(f)
+        f.close()
+        states = []
+        acceptingStates = []
+        transitions = []
+        for entry in dfaToml['states']:
+            states.append(State(entry))
+        for entry in dfaToml['accept']:
+            acceptingStates.append(State(entry))
+        startState = State(dfaToml['start'])
+        language = dfaToml['language']
+        for entry in dfaToml['transitions']:
+            transitions.append(StateTransition.from_str(entry))
+
+        # states: list, acceptingStates: list, startState: State, transitions: list, language: list
+
+        return cls(states, acceptingStates, startState, transitions, language)
     
     def testWord(self, word: str):
         state = self.startState
@@ -116,41 +144,27 @@ class DefiniteFiniteAutomata:
         for transition in self.transitions:
             print(transition.toStr())
 
-dfa = DefiniteFiniteAutomata(
-    [State("s"), State("q"), State("r")],
-    [State("q")],
-    State("s"),
-    [
-        StateTransition(State("s"), State("s"), 'a'),
-        StateTransition(State("s"), State("q"), 'b'),
-        StateTransition(State("q"), State("r"), 'a'),
-        StateTransition(State("q"), State("q"), 'b'),
-        StateTransition(State("r"), State("r"), 'a'),
-        StateTransition(State("r"), State("r"), 'b')
-    ],
-    ['a', 'b']
-)
-print("---DFA that accepts a^m b^n where m,n are natural numbers---")
-for word in ["aaaabbbb", "ab", "", "aba", "ba"]:
+
+def cli():
+    parser = argparse.ArgumentParser(
+        description="Run words through A DFA specified in a given toml file"
+    )
+    parser.add_argument(
+        "dfa", 
+        help="DFA in toml format (check examples folder for examples)"
+    )
+    parser.add_argument(
+        "word", 
+        help="The word to be tested through the DFA"
+    )
+    args = parser.parse_args()
+    path = Path(args.dfa)
+    if not path.is_absolute():
+        path = (Path(os.getcwd()) / path).resolve(strict=False)
+    dfaFile = path
+    dfa = DefiniteFiniteAutomata.from_toml(str(dfaFile))
+    word = args.word
     print(f"Testing {word}")
     result = dfa.testWordVerbose(word)
     print(f"Result - {result}")
-
-
-dfa = DefiniteFiniteAutomata(
-    [State("a"), State("b"), State("c"), State("d")],
-    [State("c")],
-    State("d"),
-    [
-        StateTransition.from_str("a-(a)->b"),
-        StateTransition(State("b"), State("c"), 'a'),
-        StateTransition(State("c"), State("a"), 'a'),
-        StateTransition(State("d"), State("a"), 'a'),
-    ],
-    ['a']
-)
-print("\n---DFA that accepts strings of a length divisible by 3---")
-for word in ["aaa", "a", "", "aa", "aaaaaa", "aaaaaaaaaaaaaaaaaa"]:
-    print(f"Testing {word}")
-    result = dfa.testWordVerbose(word)
-    print(f"Result - {result}")
+    return

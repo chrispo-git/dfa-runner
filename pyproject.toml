@@ -3,11 +3,11 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dfa-runner"
+name = "dfaRunner"
 version = "0.1.0"
-description = "Run A Deterministic Finite Automaton"
+description = "Run words through A DFA specified in a given toml file"
 authors = [{name="Christian Haastrup", email="c.haastrup865@gmail.com"}]
 dependencies = ["toml"]
 
 [project.scripts]
-dfa-runner = "dfaRunner.main:cli"
+dfaRunner = "dfaRunner.main:cli"

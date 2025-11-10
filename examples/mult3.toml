@@ -1,0 +1,6 @@
+# DFA that accepts strings of a length divisible by 3
+states = ["a", "b", "c", "d"]
+accept = ["c"]
+start = "d"
+language = ["a"]
+transitions = ["a-(a)->b", "b-(a)->c", "c-(a)->a", "d-(a)->a"]
