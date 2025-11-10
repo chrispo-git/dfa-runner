@@ -7,6 +7,7 @@ name = "dfa-runner"
 version = "0.1.0"
 description = "Run A Deterministic Finite Automaton"
 authors = [{name="Christian Haastrup", email="c.haastrup865@gmail.com"}]
+dependencies = ["toml"]
 
 [project.scripts]
 dfa-runner = "dfaRunner.main:cli"
