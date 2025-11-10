@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dfa-runner"
+version = "0.1.0"
+description = "Run A Deterministic Finite Automaton"
+authors = [{name="Christian Haastrup", email="c.haastrup865@gmail.com"}]
+
+[project.scripts]
+dfa-runner = "dfaRunner.main:cli"
