@@ -4,6 +4,8 @@ class StateError(Exception):
     pass
 class LanguageError(Exception):
     pass
+class DFAParseError(Exception):
+    pass
 
 class State:
     def __init__(self, name: str):
@@ -22,6 +24,15 @@ class StateTransition:
       self.stateStart = stateStart
       self.stateEnd = stateEnd
       self.transitionChar = transitionChar
+
+    @classmethod
+    def from_str(cls, string: str):
+        if "-(" not in string or ")->" not in string:
+            raise DFAParseError("Invalid State Transition Syntax")
+        stateStart = State(string.split("-(")[0])
+        stateEnd = State(string.split(")->")[1])
+        transitionChar = string.split("-(")[1].split(")->")[0]
+        return cls(stateStart, stateEnd, transitionChar)
     def toStr(self):
         return f"{self.stateStart.stateName}-({self.transitionChar})->{self.stateEnd.stateName}"
       
@@ -124,12 +135,14 @@ for word in ["aaaabbbb", "ab", "", "aba", "ba"]:
     print(f"Testing {word}")
     result = dfa.testWordVerbose(word)
     print(f"Result - {result}")
+
+
 dfa = DefiniteFiniteAutomata(
     [State("a"), State("b"), State("c"), State("d")],
     [State("c")],
     State("d"),
     [
-        StateTransition(State("a"), State("b"), 'a'),
+        StateTransition.from_str("a-(a)->b"),
         StateTransition(State("b"), State("c"), 'a'),
         StateTransition(State("c"), State("a"), 'a'),
         StateTransition(State("d"), State("a"), 'a'),
