@@ -2,7 +2,7 @@
 Run words through a DFA specified in a given toml file.
 ## toml Format
 The format is fairly simple, here's an example of it.
-```
+```toml
 states = ["s", "q", "r"]
 accept = ["q"]
 start = "s"
