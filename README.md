@@ -1,5 +1,5 @@
 # dfaRunner
-Run words through A DFA specified in a given toml file
+Run words through a DFA specified in a given toml file
 
 ## Installation
 Run 
