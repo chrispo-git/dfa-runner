@@ -1,9 +1,7 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch: # Allows you to run this manually for testing
+  push
 
 permissions:
   contents: read
