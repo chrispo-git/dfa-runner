@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/dfaRunner
+      url: https://test.pypi.org/p/dfa-runner
     permissions:
       id-token: write
     steps:
@@ -45,7 +45,7 @@ jobs:
     needs: [test-pypi-publish]
     environment:
       name: pypi
-      url: https://pypi.org/p/dfaRunner
+      url: https://pypi.org/p/dfa-runner
     permissions:
       id-token: write
     steps:
