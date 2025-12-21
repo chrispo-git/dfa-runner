@@ -23,10 +23,23 @@ jobs:
       - name: Extract and Set Version
         id: get_version
         run: |
+          # Get tag (v0.1.2 -> 0.1.2)
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
           echo "VERSION=$TAG_VERSION" >> $GITHUB_OUTPUT
-          sed -i "s/version *= *['\"].*['\"]/version = \"$TAG_VERSION\"/" pyproject.toml
-          echo "Building version: $TAG_VERSION"
+          
+          # Use a more aggressive regex that finds 'version' at the start of a line
+          # and replaces whatever is between the quotes.
+          sed -i "s/^version *= *['\"].*['\"]/version = \"$TAG_VERSION\"/" pyproject.toml
+          
+          # VERIFICATION STEP:
+          echo "Check: the version line now looks like this:"
+          grep "^version =" pyproject.toml
+          
+          # FAIL-SAFE: Stop the job if the file still says 0.0.0
+          if grep -q "0.0.0" pyproject.toml; then
+            echo "ERROR: Version replacement failed! Check your pyproject.toml formatting."
+            exit 1
+          fi
 
       - name: Build distributions
         run: |
