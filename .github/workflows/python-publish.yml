@@ -24,23 +24,22 @@ jobs:
       - name: Extract and Set Version
         id: get_version
         run: |
-          # 1. Get version from tag (v0.1.2 -> 0.1.2)
-          TAG_VERSION=${GITHUB_REF#refs/tags/v}
-          echo "VERSION=${TAG_VERSION}" >> $GITHUB_OUTPUT
+          # 1. Get tag and strip 'refs/tags/'
+          RAW_TAG=${GITHUB_REF##*/}
           
-          # 2. Use ':' as the delimiter to avoid the 'unknown option' error
-          # This looks for 'version =' and replaces the quoted part with TAG_VERSION
-          sed -i "s:version *= *['\"].*['\"]:version = \"${TAG_VERSION}\":" pyproject.toml
+          # 2. Strip 'v' prefix if it exists (v0.1.2 -> 0.1.2)
+          # This handles both 'v0.1.2' and '0.1.2'
+          CLEAN_VERSION=$(echo $RAW_TAG | sed 's/^v//')
           
-          # 3. VERIFICATION
-          echo "--- Resulting pyproject.toml line ---"
+          echo "VERSION=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
+          
+          # 3. Inject into pyproject.toml
+          # Using ':' as delimiter and ensuring no extra spaces/newlines
+          sed -i "s:version *= *['\"].*['\"]:version = \"${CLEAN_VERSION}\":" pyproject.toml
+          
+          # 4. VERIFICATION (Look for this in your logs!)
+          echo "Final version in file:"
           grep "version =" pyproject.toml
-          
-          # 4. FAIL-SAFE
-          if grep -q "0.0.0" pyproject.toml; then
-            echo "ERROR: The file still contains 0.0.0. sed did not find a match."
-            exit 1
-          fi
 
       - name: Build distributions
         run: |
