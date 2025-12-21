@@ -3,7 +3,7 @@ name: Build and Draft Release
 on:
   push:
     tags:
-      - 'v*' # Triggers on v0.1.0, v1.0.0, etc.
+      - '*' # Triggers on v0.1.0, v1.0.0, etc.
 
 permissions:
   contents: write # Needed to create the release and upload assets
