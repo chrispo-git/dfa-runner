@@ -3,7 +3,7 @@
 Run words through a Deterministic Finite Automaton (DFA) specified in a TOML file.
 
 ## TOML Format
-Example of formatting here (`config.toml`):
+Example of formatting here:
 
 ```toml
 states = ["s", "q", "r"]
